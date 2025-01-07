@@ -1,0 +1,6 @@
+# https://www.talos.dev/v1.9/talos-guides/install/cloud-platforms/hetzner/#install-hetzners-cloud-controller-manager
+
+cluster:
+    externalCloudProvider:
+        enabled: true
+
