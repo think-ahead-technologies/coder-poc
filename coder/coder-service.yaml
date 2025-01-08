@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    load-balancer.hetzner.cloud/location: nbg1
+    meta.helm.sh/release-name: coder
+    meta.helm.sh/release-namespace: coder
+  labels:
+    app.kubernetes.io/instance: coder
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: coder
+    app.kubernetes.io/part-of: coder
+    app.kubernetes.io/version: 2.17.2
+    helm.sh/chart: coder-2.17.2
+  name: coder
+  namespace: coder
+spec:
+  allocateLoadBalancerNodePorts: false
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  selector:
+    app.kubernetes.io/instance: coder
+    app.kubernetes.io/name: coder
+  sessionAffinity: None
+  type: LoadBalancer

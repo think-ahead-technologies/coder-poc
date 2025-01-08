@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd $(dirname $0)
+
 export IMAGE_ID=209996745
 export SERVER_TYPE=cax31
 export REGION=nbg1
@@ -17,5 +19,5 @@ function create_worker_node {
 }
 
 function config_worker_node {
-	
+
 }

@@ -2,6 +2,7 @@
 
 # See https://www.talos.dev/v1.9/talos-guides/install/cloud-platforms/hetzner/#create-the-control-plane-nodes
 
+cd $(dirname $0)
 
 # Generated using image.sh in this same directory
 export IMAGE_ID=209996745
@@ -58,7 +59,7 @@ function bootstrap_etcd {
 function add_ccm {
 	control_ips=$(hcloud server list | grep talos-control-plane | awk '{print $4}' | paste -sd "," -)
 	talosctl --talosconfig talosconfig patch machineconfig --patch-file controlplane-patch-ccm.yaml --nodes $control_ips
-    kubectl -n kube-system create secret generic hcloud --from-literal=token=$(cat .apikey)
+    kubectl -n kube-system create secret generic hcloud --from-literal=token=$(echo "$HCLOUD_TOKEN")
     helm repo add hcloud https://charts.hetzner.cloud
     helm repo update hcloud
     helm install hccm hcloud/hcloud-cloud-controller-manager -n kube-system
