@@ -2,6 +2,19 @@
 
 cd $(dirname $0)
 
+echo "Installing coder on existing Kubernetes cluster. This script is idempotent." >&2
+
+helm upgrade --wait --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx \
+  --namespace ingress-nginx --create-namespace \
+  --set controller.service.annotations."load-balancer\.hetzner\.cloud/location"=nbg1
+
+LB_IP=$(hcloud load-balancer list | tail -n +2 | awk '{print $4}')
+
+hcloud firewall add-rule --description "Allow ingress from load balancer" \
+    --port any --direction in --source-ips "$LB_IP/32" --protocol tcp \
+    coder.thinkahead.dev
+
 # Install PostgreSQL
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm upgrade coder-db bitnami/postgresql \
@@ -15,7 +28,7 @@ helm upgrade coder-db bitnami/postgresql \
 
 kubectl apply -k storage-class
 
-kubectl create secret generic coder-db-url --dry-run -n coder \
+kubectl create secret generic coder-db-url --dry-run=client -n coder \
   --from-literal=url="postgres://coder:coder@coder-db-postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable" \
   -o yaml | kubectl apply -f -
 
@@ -25,13 +38,10 @@ helm upgrade coder coder-v2/coder \
     --install \
     --namespace coder \
     --values coder-values.yaml \
+    --set coder.env[0].value="http://$LB_IP" \
     --version 2.18.2
 
-# TODO figure out ingress
+kubectl apply -f ingress.yaml
 
-helm upgrade --install ingress-nginx ingress-nginx \
-  --repo https://kubernetes.github.io/ingress-nginx \
-  --namespace ingress-nginx --create-namespace \
-  --set controller.service.annotations."load-balancer\.hetzner\.cloud/location"=nbg1
-
-# NB possibly access Coder on localhost:8080 after setting up port-forwarding 8080->8080.
+echo
+echo "Coder available at: http://$LB_IP/"

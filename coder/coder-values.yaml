@@ -9,6 +9,11 @@ coder:
   # `CODER_TLS_ENABLE`, `CODER_TLS_CERT_FILE` or `CODER_TLS_KEY_FILE` as
   # they are already set by the Helm chart and will cause conflicts.
   env:
+    # (Optional) For production deployments the access URL should be set.
+    # If you're just trying Coder, access the dashboard via the service IP.
+    - name: CODER_ACCESS_URL
+      value: "filled in automatically with load-balancer IP"
+
     - name: CODER_PG_CONNECTION_URL
       valueFrom:
         secretKeyRef:
@@ -18,20 +23,10 @@ coder:
           name: coder-db-url
           key: url
 
-    # (Optional) For production deployments the access URL should be set.
-    # If you're just trying Coder, access the dashboard via the service IP.
-    # - name: CODER_ACCESS_URL
-      # value: "http://167.235.109.127:8080"
-
   #tls:
   #  secretNames:
   #    - my-tls-secret-name
 
   service:
-    # enable: true
-    # type: LoadBalancer
-    # sessionAffinity: None
-    # externalTrafficPolicy: Cluster
-    # loadBalancerIp: ""
-    annotations:
-      load-balancer.hetzner.cloud/location: nbg1
+    enable: true
+    type: ClusterIP

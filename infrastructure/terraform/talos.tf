@@ -14,7 +14,7 @@ module "talos" {
 
   hcloud_token = var.HCLOUD_TOKEN
 
-  cluster_name = "coder.thinkahead.tech"
+  cluster_name = "coder.thinkahead.dev"
   #   cluster_domain   = "cluster.dummy.com.local"
   #   cluster_api_host = "kube.dummy.com"
 
@@ -28,15 +28,15 @@ module "talos" {
   disable_x86 = true
 
   control_plane_server_type = "cax11"
-  control_plane_count       = 3
+  control_plane_count       = 1
 
   worker_server_type = "cax31"
   worker_count       = 1
 
-  network_ipv4_cidr = "10.0.0.0/16"
-  node_ipv4_cidr    = "10.0.1.0/24"
-  pod_ipv4_cidr     = "10.0.16.0/20"
-  service_ipv4_cidr = "10.0.8.0/21"
+  #   network_ipv4_cidr = "10.0.0.0/16"
+  #   node_ipv4_cidr    = "10.0.1.0/24"
+  #   pod_ipv4_cidr     = "10.0.16.0/20"
+  #   service_ipv4_cidr = "10.0.8.0/21"
 
   kubelet_extra_args = {
     # TODO see https://www.talos.dev/v1.9/kubernetes-guides/configuration/local-storage/#local-path-provisioner

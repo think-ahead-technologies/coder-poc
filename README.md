@@ -4,6 +4,8 @@ Deployment of [Coder.com](https://coder.com/) on Kubernetes using [Talos](https:
 
 ## Usage
 
+### Deployment
+
 Run the following (from the root directory of the repo, for simplicity):
 
 1. Setup credentials in your environment
@@ -24,3 +26,22 @@ Run the following (from the root directory of the repo, for simplicity):
     - `export KUBECONFIG=../kubeconfig`
 1. Deploy coder on the cluster
     - `./coder/setup-coder.sh`
+1. Access Coder at the URL of the load balancer (output by the above script).
+1. Create a Coder Template
+    - use [coder/workspace-template.tf](workspace-template.tf) for the Terraform source code
+1. Create a Workspace based on your new Template
+1. Success!
+
+# Destroying a deployment
+
+You can spin down an existing Coder deployment simply:
+1. Setup credentials as with creation
+    - `export HCLOUD_TOKEN=<...>`
+1. Destroy Coder resources within Terraform
+    - `./coder/destroy-coder.sh`
+    - Note that this does not destroy 'side-effect' resources like active workspaces
+1. Destroy the base infrastructure
+    - `pushd infrastructure/terraform`
+    - `terraform init`
+    - `terraform destroy`
+    - `popd`
