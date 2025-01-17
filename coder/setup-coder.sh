@@ -10,6 +10,10 @@ helm upgrade --wait --install ingress-nginx ingress-nginx \
   --set controller.service.annotations."load-balancer\.hetzner\.cloud/location"=nbg1
 
 LB_IP=$(hcloud load-balancer list | tail -n +2 | awk '{print $4}')
+if [ -z "$LB_IP" ]; then
+    echo "Error: no load balancer found. Could your kubectl be invalid?" >&2
+    exit 1
+fi
 
 hcloud firewall add-rule --description "Allow ingress from load balancer" \
     --port any --direction in --source-ips "$LB_IP/32" --protocol tcp \
@@ -44,4 +48,4 @@ helm upgrade coder coder-v2/coder \
 kubectl apply -f ingress.yaml
 
 echo
-echo "Coder available at: http://$LB_IP/"
+echo "Coder set up. Once it is ready, you can access it at: http://$LB_IP/"
