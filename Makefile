@@ -16,7 +16,7 @@ setup-coder deploy-coder: kubeconfig
 destroy-all: destroy-coder destroy-infrastructure
 
 destroy-coder: kubeconfig
-	KUBECONFIG=$$(pwd)/kubeconfig ./coder/destroy-coder.sh
+	-KUBECONFIG=$$(pwd)/kubeconfig ./coder/destroy-coder.sh
 
 setup-image: need-env-HCLOUD_TOKEN
 	./infrastructure/setup-image.sh

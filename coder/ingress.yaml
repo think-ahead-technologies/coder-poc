@@ -4,11 +4,18 @@ metadata:
   name: coder
   namespace: coder
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # external-dns.alpha.kubernetes.io/hostname: coder.think-ahead.dev
 spec:
+  tls:
+    - hosts:
+        - coder.think-ahead.dev
+      secretName: coder-tls-secret
   ingressClassName: nginx
   rules:
-  - http:
+  - host: coder.think-ahead.dev # Note: this MUST be set
+    http:
       paths:
       - path: /
         pathType: Prefix

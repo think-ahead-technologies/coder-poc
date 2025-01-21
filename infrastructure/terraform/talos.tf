@@ -3,6 +3,13 @@ variable "HCLOUD_TOKEN" {
   sensitive = true
 }
 
+data "http" "myip" {
+  url = "https://ipv4.icanhazip.com"
+}
+
+locals {
+  executor_ip = chomp(data.http.myip.response_body)
+}
 
 module "talos" {
   source  = "hcloud-talos/talos/hcloud"
@@ -14,24 +21,34 @@ module "talos" {
 
   hcloud_token = var.HCLOUD_TOKEN
 
-  cluster_name = "coder.thinkahead.dev"
+  cluster_name = var.dns
   #   cluster_domain   = "cluster.dummy.com.local"
   #   cluster_api_host = "kube.dummy.com"
 
-  firewall_use_current_ip = true
+  firewall_use_current_ip = false
   #   firewall_use_current_ip = false
-  #   firewall_kube_api_source = ["your-ip"]
-  #   firewall_talos_api_source = ["your-ip"]
+  firewall_kube_api_source  = [local.executor_ip, hcloud_load_balancer.load_balancer.ipv4]
+  firewall_talos_api_source = [local.executor_ip, hcloud_load_balancer.load_balancer.ipv4]
 
-  datacenter_name = "fsn1-dc14"
+  extra_firewall_rules = [
+    {
+      description = "Allow Incoming HTTP requests"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "any"
+      source_ips  = [local.executor_ip, hcloud_load_balancer.load_balancer.ipv4]
+    }
+  ]
+
+  datacenter_name = var.datacenter
 
   disable_x86 = true
 
-  control_plane_server_type = "cax11"
-  control_plane_count       = 1
+  control_plane_server_type = var.control_plane_type
+  control_plane_count       = var.control_plane_count
 
-  worker_server_type = "cax31"
-  worker_count       = 1
+  worker_server_type = var.worker_type
+  worker_count       = var.worker_count
 
   #   network_ipv4_cidr = "10.0.0.0/16"
   #   node_ipv4_cidr    = "10.0.1.0/24"

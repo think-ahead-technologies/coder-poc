@@ -10,6 +10,7 @@ Run the following (from the root directory of the repo, for simplicity):
 
 1. Setup credentials in your environment
     - `export HCLOUD_TOKEN=<...>`
+    - `export HETZNER_DNS_API_TOKEN=<...>`
 1. Create image
     - `./infrastructure/setup-image.sh`
     - _OR_ `make setup-image`
@@ -40,6 +41,7 @@ Run the following (from the root directory of the repo, for simplicity):
 You can spin down an existing Coder deployment simply:
 1. Setup credentials as with creation
     - `export HCLOUD_TOKEN=<...>`
+    - `export HETZNER_DNS_API_TOKEN=<...>`
 1. Destroy Coder resources within Terraform
     - `./coder/destroy-coder.sh`
     - _or_ `make destroy-coder`

@@ -2,22 +2,48 @@
 
 cd $(dirname $0)
 
+trap ctrl_c INT
+
+function ctrl_c() {
+    echo "Received interrupt signal. Exiting." >&2
+    exit 1
+}
+
 echo "Installing coder on existing Kubernetes cluster. This script is idempotent." >&2
 
+# Inject DNS credentials as a Kubernetes secret
+cat cluster-issuer-secret.yaml | ENCODED_SECRET="$(echo "$HETZNER_DNS_API_TOKEN" | base64)" envsubst | kubectl apply -f -
+
+kubectl apply -f cluster-issuer.yaml
+
+helm repo add jetstack https://charts.jetstack.io
+helm upgrade --install \
+  cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.16.3 \
+  --set crds.enabled=true
+
+helm repo add cert-manager-webhook-hetzner https://vadimkim.github.io/cert-manager-webhook-hetzner
+helm upgrade --install \
+    cert-manager-webhook-hetzner \
+    cert-manager-webhook-hetzner/cert-manager-webhook-hetzner \
+    --namespace cert-manager \
+    --set groupName=think-ahead.dev
+    # --set secretName[0]=hetzner-secret
+
+echo "Setting up nginx ingress"
 helm upgrade --wait --install ingress-nginx ingress-nginx \
   --repo https://kubernetes.github.io/ingress-nginx \
   --namespace ingress-nginx --create-namespace \
-  --set controller.service.annotations."load-balancer\.hetzner\.cloud/location"=nbg1
+  --set controller.service.annotations."load-balancer\.hetzner\.cloud/location"=nbg1 \
+  --set controller.service.annotations."load-balancer\.hetzner\.cloud/name"=coder-load-balancer
 
-LB_IP=$(hcloud load-balancer list | tail -n +2 | awk '{print $4}')
+LB_IP=$(hcloud load-balancer list | tail -n +2 | awk '{print $4}' | head -1)
 if [ -z "$LB_IP" ]; then
     echo "Error: no load balancer found. Could your kubectl be invalid?" >&2
     exit 1
 fi
-
-hcloud firewall add-rule --description "Allow ingress from load balancer" \
-    --port any --direction in --source-ips "$LB_IP/32" --protocol tcp \
-    coder.thinkahead.dev
 
 # Install PostgreSQL
 helm repo add bitnami https://charts.bitnami.com/bitnami
