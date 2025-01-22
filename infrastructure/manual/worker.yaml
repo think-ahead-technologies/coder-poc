@@ -45,7 +45,7 @@ cluster:
     secret: 0FKVGgGP8tFryTZ9RvM90SQe4H6mQXRaBEICYRwPuXw= # Shared secret of cluster (base64 encoded random 32 bytes).
     # Provides control plane specific configuration options.
     controlPlane:
-        endpoint: https://167.235.109.127:6443 # Endpoint is the canonical controlplane endpoint, which can be an IP address or a DNS hostname.
+        endpoint: https://coder.think-ahead.dev:6443 # Endpoint is the canonical controlplane endpoint, which can be an IP address or a DNS hostname.
     clusterName: talos-k8s-hcloud-tutorial # Configures the cluster's name.
     # Provides cluster specific network configuration options.
     network:

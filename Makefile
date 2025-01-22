@@ -1,11 +1,17 @@
 
 deploy-all: deploy-infrastructure setup-coder
 
-deploy-infrastructure: need-env-HCLOUD_TOKEN
-	cd infrastructure/terraform && terraform init && terraform apply
+deploy-infrastructure: need-env-HCLOUD_TOKEN need-env-HETZNER_DNS_API_TOKEN
+	cd infrastructure/terraform \
+	&& export TF_VAR_HCLOUD_TOKEN=$$HCLOUD_TOKEN \
+	&& ./ensure-ip-access.sh \
+	&& terraform init \
+	&& terraform apply -auto-approve
 
 destroy-infrastructure: need-env-HCLOUD_TOKEN
-	cd infrastructure/terraform && terraform destroy
+	cd infrastructure/terraform \
+	&& ./ensure-ip-access.sh \
+	&& terraform destroy
 
 init-infrastructure:
 	cd infrastructure/terraform && terraform init

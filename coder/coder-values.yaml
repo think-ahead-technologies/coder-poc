@@ -12,7 +12,7 @@ coder:
     # (Optional) For production deployments the access URL should be set.
     # If you're just trying Coder, access the dashboard via the service IP.
     - name: CODER_ACCESS_URL
-      value: "filled in automatically with load-balancer IP"
+      value: "filled in automatically with load-balancer IP or DNS"
 
     - name: CODER_PG_CONNECTION_URL
       valueFrom:

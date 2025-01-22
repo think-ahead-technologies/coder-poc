@@ -1,9 +1,4 @@
 
-variable "dns" {
-  type    = string
-  default = "coder.think-ahead.dev"
-}
-
 variable "zone" {
   type    = string
   default = "nbg1"

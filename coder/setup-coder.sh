@@ -24,13 +24,14 @@ helm upgrade --install \
   --version v1.16.3 \
   --set crds.enabled=true
 
-helm repo add cert-manager-webhook-hetzner https://vadimkim.github.io/cert-manager-webhook-hetzner
-helm upgrade --install \
-    cert-manager-webhook-hetzner \
-    cert-manager-webhook-hetzner/cert-manager-webhook-hetzner \
-    --namespace cert-manager \
-    --set groupName=think-ahead.dev
-    # --set secretName[0]=hetzner-secret
+# Currently unused: cert-manager validates using nginx
+# helm repo add cert-manager-webhook-hetzner https://vadimkim.github.io/cert-manager-webhook-hetzner
+# helm upgrade --install \
+#     cert-manager-webhook-hetzner \
+#     cert-manager-webhook-hetzner/cert-manager-webhook-hetzner \
+#     --namespace cert-manager \
+#     --set groupName=think-ahead.dev
+#     # --set secretName[0]=hetzner-secret
 
 echo "Setting up nginx ingress"
 helm upgrade --wait --install ingress-nginx ingress-nginx \
@@ -62,16 +63,21 @@ kubectl create secret generic coder-db-url --dry-run=client -n coder \
   --from-literal=url="postgres://coder:coder@coder-db-postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable" \
   -o yaml | kubectl apply -f -
 
-helm repo add coder-v2 https://helm.coder.com/v2
+CODER_DNS=$(cd ../infrastructure/terraform && terraform output -raw coder-dns)
 
+helm repo add coder-v2 https://helm.coder.com/v2
 helm upgrade coder coder-v2/coder \
     --install \
     --namespace coder \
     --values coder-values.yaml \
-    --set coder.env[0].value="http://$LB_IP" \
+    --set coder.env[0].value="http://$CODER_DNS" \
     --version 2.18.2
 
 kubectl apply -f ingress.yaml
 
+kubectl apply -f namespace.yaml
+
+kubectl create clusterrolebinding allow-coder-to-create-workspaces --clusterrole=cluster-admin --serviceaccount=coder:coder
+
 echo
-echo "Coder set up. Once it is ready, you can access it at: http://$LB_IP/"
+echo "Coder set up. Once it is ready, you can access it at: https://$CODER_DNS/"

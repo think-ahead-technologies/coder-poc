@@ -21,6 +21,10 @@ output "load-balancer-ip" {
   value = hcloud_load_balancer.load_balancer.ipv4
 }
 
+locals {
+    dns = "${hetznerdns_record.coder.name}.${data.hetznerdns_zone.think_ahead.name}"
+}
+
 output "coder-dns" {
-  value = "${hetznerdns_record.coder.name}.${data.hetznerdns_zone.think_ahead.name}"
+  value = local.dns
 }

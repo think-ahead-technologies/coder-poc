@@ -21,14 +21,19 @@ module "talos" {
 
   hcloud_token = var.HCLOUD_TOKEN
 
-  cluster_name = var.dns
+  cluster_name = local.dns
   #   cluster_domain   = "cluster.dummy.com.local"
   #   cluster_api_host = "kube.dummy.com"
 
   firewall_use_current_ip = false
-  #   firewall_use_current_ip = false
-  firewall_kube_api_source  = [local.executor_ip, hcloud_load_balancer.load_balancer.ipv4]
-  firewall_talos_api_source = [local.executor_ip, hcloud_load_balancer.load_balancer.ipv4]
+  firewall_kube_api_source  = [
+    local.executor_ip,
+    hcloud_load_balancer.load_balancer.ipv4
+  ]
+  firewall_talos_api_source = [
+    local.executor_ip,
+    hcloud_load_balancer.load_balancer.ipv4
+  ]
 
   extra_firewall_rules = [
     {
@@ -49,28 +54,6 @@ module "talos" {
 
   worker_server_type = var.worker_type
   worker_count       = var.worker_count
-
-  #   network_ipv4_cidr = "10.0.0.0/16"
-  #   node_ipv4_cidr    = "10.0.1.0/24"
-  #   pod_ipv4_cidr     = "10.0.16.0/20"
-  #   service_ipv4_cidr = "10.0.8.0/21"
-
-  kubelet_extra_args = {
-    # TODO see https://www.talos.dev/v1.9/kubernetes-guides/configuration/local-storage/#local-path-provisioner
-    # extraMounts = jsonencode({
-    #   destination = "/var/local-path-provisioner"
-    #   type        = "bind"
-    #   source      = "/var/local-path-provisioner"
-    #   options = [
-    #     "bind",
-    #     "rshared",
-    #     "rw"
-    #   ]
-    # })
-  }
-
-  extraManifests = [ # TODO probably not useful for applying storage-class yaml
-  ]
 }
 
 output "talosconfig" {

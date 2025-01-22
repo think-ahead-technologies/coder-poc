@@ -1,6 +1,9 @@
 # This file is based on the "Kubernetes (Deployment)" starter template within Coder.
 # It should be (manually) copied into Coder on setup.
 
+# Note that the "Devcontainers (Kubernetes)" starter template works perfectly well
+#  out of the box, rendering this file/template unnecessary.
+
 terraform {
   required_providers {
     coder = {
